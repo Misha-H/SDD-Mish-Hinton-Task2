@@ -56,4 +56,3 @@ interface WeatherDay {
 type Weather = Array<WeatherDay>;
 
 weather[0].max;
-
