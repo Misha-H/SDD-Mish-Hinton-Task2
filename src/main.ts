@@ -78,8 +78,12 @@ const getWeather = async (startDate: string, endDate: string) => {
 
   await getWeather(startDate, getISO(new Date(endDate)));
 
+<<<<<<< HEAD
   console.log(calendar.view.activeStart.toISOString(), calendar.view.activeEnd);
   calendar.render();
 
   console.log(getISO(calendar.view.activeStart));
 })();
+=======
+weather[0].max;
+>>>>>>> bcb29cdf1f2857186de2b70fc34071d04542643f
