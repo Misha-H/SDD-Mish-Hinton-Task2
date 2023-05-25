@@ -2,12 +2,10 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import './style.css';
 
-// interface ObjCustomContent {
-//   html: string;
-//   domNodes: any[];
-// }
+import './style.css';
+import tooltip from './tooltip';
+
 interface WeatherDay {
   date: number;
   max: number;
@@ -15,6 +13,7 @@ interface WeatherDay {
 }
 
 type Weather = Array<WeatherDay>;
+
 const weather: Weather = [];
 
 const getWeather = async (startDate: string, endDate: string) => {
@@ -47,7 +46,7 @@ const getWeather = async (startDate: string, endDate: string) => {
 };
 
 (async () => {
-  let calendar = new Calendar(document.getElementById('app')!, {
+  let calendar = new Calendar(document.getElementById('calendar')!, {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
@@ -89,14 +88,17 @@ const getWeather = async (startDate: string, endDate: string) => {
   calendar.render();
 
   console.log(getISO(calendar.view.activeStart));
+
+  // Initialise tooltip
+  tooltip(calendar);
 })();
 
-const toggleToolbar = document.querySelectorAll('.toggle-toolbar');
-const stickyToolbarContainer = document.querySelector(
-  '.sticky-toolbar-container'
-);
-toggleToolbar.forEach(function (element) {
-  element.addEventListener('click', function () {
-    stickyToolbarContainer.classList.toggle('show-toolbar');
-  });
-});
+// const toggleToolbar = document.querySelectorAll('.toggle-toolbar');
+// const stickyToolbarContainer = document.querySelector(
+//   '.sticky-toolbar-container'
+// );
+// toggleToolbar.forEach(function (element) {
+//   element.addEventListener('click', function () {
+//     stickyToolbarContainer.classList.toggle('show-toolbar');
+//   });
+// });
