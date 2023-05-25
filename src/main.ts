@@ -90,3 +90,13 @@ const getWeather = async (startDate: string, endDate: string) => {
 
   console.log(getISO(calendar.view.activeStart));
 })();
+
+const toggleToolbar = document.querySelectorAll('.toggle-toolbar');
+const stickyToolbarContainer = document.querySelector(
+  '.sticky-toolbar-container'
+);
+toggleToolbar.forEach(function (element) {
+  element.addEventListener('click', function () {
+    stickyToolbarContainer.classList.toggle('show-toolbar');
+  });
+});
