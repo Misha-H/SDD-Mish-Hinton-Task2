@@ -7,7 +7,7 @@
    ```
 
 2. Commit changes with a description.
-
+`
    ```sh
    git commit -m"<related_message_about_staged_files_changes>"
    ```
@@ -26,5 +26,5 @@
 
 5. Pull code from master
    ```sh
-   git push
+   git pull
    ```

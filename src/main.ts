@@ -4,7 +4,7 @@ import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 import './style.css';
-import tooltip from './tooltip';
+import utils from './utils';
 
 interface WeatherDay {
   date: number;
@@ -90,15 +90,5 @@ const getWeather = async (startDate: string, endDate: string) => {
   console.log(getISO(calendar.view.activeStart));
 
   // Initialise tooltip
-  tooltip(calendar);
+  utils(calendar);
 })();
-
-// const toggleToolbar = document.querySelectorAll('.toggle-toolbar');
-// const stickyToolbarContainer = document.querySelector(
-//   '.sticky-toolbar-container'
-// );
-// toggleToolbar.forEach(function (element) {
-//   element.addEventListener('click', function () {
-//     stickyToolbarContainer.classList.toggle('show-toolbar');
-//   });
-// });
