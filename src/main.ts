@@ -4,7 +4,6 @@ import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 import './style.css';
-import utils from './utils';
 
 interface WeatherDay {
   date: number;
@@ -46,11 +45,111 @@ const getWeather = async (startDate: string, endDate: string) => {
 };
 
 (async () => {
-  let calendar = new Calendar(document.getElementById('calendar')!, {
+  /**
+   * Define available form inputs elements.
+   */
+  interface FormInputElements extends HTMLFormControlsCollection {
+    'event-date': HTMLInputElement;
+    'event-title': HTMLInputElement;
+  }
+
+  /**
+   * @remarks
+   * Given:
+   * ```html
+   * <form>
+   *   <input type='text' name="event-date" value='Hello' />
+   *   <input type='text' name="event-title" value='World!' />
+   * </form>
+   * ```
+   *
+   * Extend `HTMLFormElement` to include HTML `<form>` inputs.
+   *
+   * @example
+   * From: `HTMLFormElement`:
+   * ```ts
+   * {
+   *   elements: {};
+   * }
+   * ```
+   *
+   * To: `AddEventFormElement`:
+   * ```ts
+   * {
+   *   elements: {
+   *     'event-date': HTMLInputElement;
+   *     'event-title': HTMLInputElement;
+   *   },
+   * }
+   * ```
+   */
+  interface AddEventFormElement extends HTMLFormElement {
+    elements: FormInputElements;
+  }
+
+  // Change typing of form from HTMLFormElement to AddEventFormElement
+  const $form = document.querySelector('form')! as AddEventFormElement;
+
+  // https://fullcalendar.io/docs/event-source-object
+
+  function initModal(event: MouseEvent) {
+    // Get access to modal
+    const $modal = document.getElementById('add-event-modal')!;
+    // Get access to calendar
+    const $calendar = document.getElementById('calendar')!;
+    // Get access to to all elements in modal with the `modal-exit` class
+    const $modalExitBtns = $modal.querySelectorAll('.modal-exit');
+
+    // Prevent browser from performing default actions (like refreshing page)
+    event.preventDefault();
+
+    /**
+     * Close the active modal.
+     */
+    function closeModal(event: SubmitEvent | Event) {
+      event.preventDefault();
+      $modal.classList.remove('active');
+      $calendar.classList.remove('hidden');
+      $form.removeEventListener('submit', formSubmit);
+    }
+    /**
+     * Submit information / create event
+     */
+    function formSubmit(event: SubmitEvent) {
+      calendar.addEvent({
+        id: Math.random().toString(),
+        date: $form.elements['event-date'].value,
+        title: $form.elements['event-title'].value,
+      });
+
+      closeModal(event);
+    }
+
+    // Make the calendar invisible
+    $calendar.classList.add('hidden');
+    // Make the modal visible
+    $modal.classList.add('active');
+
+    $modalExitBtns.forEach(($modalExitBtn) => {
+      // Close modal on click event
+      $modalExitBtn.addEventListener('click', closeModal);
+    });
+
+    // Init form
+    $form.addEventListener('submit', formSubmit);
+  }
+
+  const calendar = new Calendar(document.getElementById('calendar')!, {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
+    customButtons: {
+      addEvent: {
+        text: 'Add Event',
+        click: initModal,
+      },
+    },
     initialView: 'dayGridMonth',
     headerToolbar: {
-      left: 'prev,next today',
+      left: 'prev,next today addEvent',
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,listWeek',
     },
@@ -88,7 +187,4 @@ const getWeather = async (startDate: string, endDate: string) => {
   calendar.render();
 
   console.log(getISO(calendar.view.activeStart));
-
-  // Initialise tooltip
-  utils(calendar);
 })();

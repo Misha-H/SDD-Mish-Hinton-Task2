@@ -1,5 +1,10 @@
-:root {
+html {
+  font-size: 16px;
+}
+
+body {
   font-family: system-ui, Arial, Helvetica, sans-serif;
+  margin: 0;
 }
 
 .hide {
@@ -15,9 +20,27 @@
   flex-direction: column;
 }
 
+#app {
+  height: 100vh;
+}
+
+/* 
+ * Calendar
+ */
+#calendar {
+  height: 100%;
+  padding: 0.75rem 2rem;
+}
+
+#calendar .fc-view-harness.fc-view-harness-active,
+#calendar .fc-daygrid-body.fc-daygrid-body-unbalanced,
+#calendar .fc-scrollgrid-sync-table {
+  height: 100% !important;
+}
+
 /* 
  * Modal CSS
-*/
+ */
 .modal {
   position: fixed;
   width: 100vw;
