@@ -38,6 +38,52 @@ body {
   height: 100% !important;
 }
 
+#calendar .fc-daygrid-day-top > a {
+  width: 100%;
+  max-width: 6rem;
+}
+
+#calendar .datetemp {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+#calendar .datetemp > .date {
+  font-weight: bold;
+  text-align: right;
+}
+
+#calendar .datetemp > .weather {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+#calendar .datetemp > .weather > div {
+  padding: 0 0.15rem;
+  display: flex;
+  flex-direction: row;
+}
+
+#calendar .datetemp > .weather > div > span:last-child:after {
+  color: red;
+  content: '°C';
+}
+
+#calendar .datetemp > .weather > div > span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#calendar .datetemp > .weather > div svg {
+  color: #1a252f;
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
 /* 
  * Modal CSS
  */
