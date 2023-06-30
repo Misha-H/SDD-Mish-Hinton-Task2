@@ -3,6 +3,8 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
+import type { EventInput } from '@fullcalendar/core';
+
 import './style.css';
 
 interface WeatherDay {
@@ -12,6 +14,43 @@ interface WeatherDay {
 }
 
 type Weather = Array<WeatherDay>;
+
+interface Db {
+  events: Array<EventInput>;
+}
+
+let _db: Db = {
+  events: [],
+};
+
+const db = {
+  NAME: 'db',
+  save(): void {
+    localStorage.setItem(this.NAME, JSON.stringify(_db));
+    console.log('[DB]: SAVE');
+  },
+  read(): void {
+    _db = JSON.parse(localStorage.getItem(this.NAME)!);
+  },
+  addEvent(event: EventInput): void {
+    _db.events.push(event);
+    this.save();
+  },
+  getEvents() {
+    return _db.events
+  }
+};
+
+// Init database from local storage
+if (localStorage.getItem('db') === null) {
+  console.log('[DB]: CREATE');
+  // Save default value to database/local storage
+  db.save();
+} else {
+  console.log('[DB]: READ');
+  db.read();
+  console.log(_db)
+}
 
 const weather: Weather = [];
 
@@ -23,7 +62,7 @@ const getWeather = async (startDate: string, endDate: string) => {
       )
     ).json();
     console.log(response);
-    //checking if the api returns an error, specific to this api.
+    // checking if the api returns an error, specific to this api.
     if (response.error) {
       return;
     }
@@ -49,7 +88,10 @@ const getWeather = async (startDate: string, endDate: string) => {
    * Define available form inputs elements.
    */
   interface FormInputElements extends HTMLFormControlsCollection {
-    'event-date': HTMLInputElement;
+    'event-date-start': HTMLInputElement;
+    'event-date-end': HTMLInputElement;
+    'event-time-start': HTMLInputElement;
+    'event-time-end': HTMLInputElement;
     'event-title': HTMLInputElement;
   }
 
@@ -106,8 +148,8 @@ const getWeather = async (startDate: string, endDate: string) => {
     /**
      * Close the active modal.
      */
-    function closeModal(event: SubmitEvent | Event) {
-      event.preventDefault();
+    function closeModal(event$: SubmitEvent | Event) {
+      event$.preventDefault();
       $modal.classList.remove('active');
       $calendar.classList.remove('hidden');
       $form.removeEventListener('submit', formSubmit);
@@ -115,14 +157,19 @@ const getWeather = async (startDate: string, endDate: string) => {
     /**
      * Submit information / create event
      */
-    function formSubmit(event: SubmitEvent) {
-      calendar.addEvent({
+    function formSubmit(event$: SubmitEvent) {
+      const event: EventInput = {
         id: Math.random().toString(),
-        date: $form.elements['event-date'].value,
         title: $form.elements['event-title'].value,
-      });
+        start: new Date($form.elements['event-date-start'].value).toJSON(),
+        end: new Date($form.elements['event-date-end'].value).toJSON(),
+      };
 
-      closeModal(event);
+      db.addEvent(event);
+
+      calendar.addEvent(event);
+
+      closeModal(event$);
     }
 
     // Make the calendar invisible
@@ -154,6 +201,7 @@ const getWeather = async (startDate: string, endDate: string) => {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,listWeek',
     },
+    events: db.getEvents(),
     /**
      *
      * @param renderProps

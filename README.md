@@ -9,7 +9,7 @@
 2. Commit changes with a description.
 `
    ```sh
-   git commit -m"<related_message_about_staged_files_changes>"
+   ~
    ```
 
 3. Check Git status
