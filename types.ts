@@ -5,5 +5,4 @@ export interface Obj {
   message: string;
 }
 
-
 export const message = 'String';

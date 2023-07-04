@@ -2,6 +2,7 @@ import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import invert from 'invert-color';
 
 import type { EventInput } from '@fullcalendar/core';
 
@@ -14,6 +15,15 @@ interface WeatherDay {
 }
 
 type Weather = Array<WeatherDay>;
+
+interface Popup {
+  $popup: {
+    container: HTMLElement;
+    body: HTMLElement;
+  };
+  show: (x: number | string, y: number | string) => void;
+  hide: () => void;
+}
 
 interface Db {
   events: Array<EventInput>;
@@ -37,8 +47,8 @@ const db = {
     this.save();
   },
   getEvents() {
-    return _db.events
-  }
+    return _db.events;
+  },
 };
 
 // Init database from local storage
@@ -49,8 +59,33 @@ if (localStorage.getItem('db') === null) {
 } else {
   console.log('[DB]: READ');
   db.read();
-  console.log(_db)
+  console.log(_db);
 }
+
+const popup: Popup = {
+  $popup: {
+    container: document.querySelector('.popup')!,
+    body: document.querySelector('.popup .popup-body')!,
+  },
+
+  show: function (x: number | string, y: number | string) {
+    console.log('show');
+    console.log('show->this', this);
+    console.log('show->this->container', this.$popup.container);
+    this.$popup.body.style.left = `${x}px`;
+    this.$popup.body.style.top = `${y}px`;
+    this.$popup.container.addEventListener('click', this.hide);
+    this.$popup.container.style.display = 'block';
+  },
+
+  hide: function () {
+    console.log('hide');
+    console.log('hide->this', this);
+    console.log('hide->this->container', this.$popup.container);
+    this.$popup.container.removeEventListener('click', this.hide);
+    this.$popup.container.style.display = 'none';
+  },
+};
 
 const weather: Weather = [];
 
@@ -62,13 +97,12 @@ const getWeather = async (startDate: string, endDate: string) => {
       )
     ).json();
     console.log(response);
+
     // checking if the api returns an error, specific to this api.
     if (response.error) {
       return;
     }
-    /**
-     *
-     */
+
     const dailyTimes: Array<string> = response.daily.time;
 
     for (let i = 0; i < dailyTimes.length; i++) {
@@ -90,9 +124,8 @@ const getWeather = async (startDate: string, endDate: string) => {
   interface FormInputElements extends HTMLFormControlsCollection {
     'event-date-start': HTMLInputElement;
     'event-date-end': HTMLInputElement;
-    'event-time-start': HTMLInputElement;
-    'event-time-end': HTMLInputElement;
     'event-title': HTMLInputElement;
+    'event-colour': HTMLInputElement;
   }
 
   /**
@@ -145,6 +178,13 @@ const getWeather = async (startDate: string, endDate: string) => {
     // Prevent browser from performing default actions (like refreshing page)
     event.preventDefault();
 
+    // Get current time
+    const now = new Date().toISOString().slice(0, 16);
+
+    // Set input's time to current
+    document.querySelector<HTMLInputElement>('#event-date-start')!.value = now;
+    document.querySelector<HTMLInputElement>('#event-date-end')!.value = now;
+
     /**
      * Close the active modal.
      */
@@ -158,11 +198,15 @@ const getWeather = async (startDate: string, endDate: string) => {
      * Submit information / create event
      */
     function formSubmit(event$: SubmitEvent) {
+      console.log($form.elements['event-colour'].value);
+
       const event: EventInput = {
         id: Math.random().toString(),
         title: $form.elements['event-title'].value,
         start: new Date($form.elements['event-date-start'].value).toJSON(),
         end: new Date($form.elements['event-date-end'].value).toJSON(),
+        backgroundColor: $form.elements['event-colour'].value,
+        textColor: invert($form.elements['event-colour'].value, true),
       };
 
       db.addEvent(event);
@@ -202,6 +246,12 @@ const getWeather = async (startDate: string, endDate: string) => {
       right: 'dayGridMonth,timeGridWeek,listWeek',
     },
     events: db.getEvents(),
+    eventClick: (eventClickInfo) => {
+      // Delete event
+      // eventClickInfo.event.remove()
+      const { clientX, clientY } = eventClickInfo.jsEvent;
+      popup.show(clientX, clientY);
+    },
     /**
      *
      * @param renderProps

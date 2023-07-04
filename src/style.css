@@ -13,7 +13,7 @@
   --fc-event-bg-color: black;
   --fc-event-border-color: black;
   --fc-event-text-color: #fff;
-  --fc-event-selected-overlay-color: black;
+  --fc-event-selected-overlay-color: #d1d1d14d;
   --fc-more-link-bg-color: #d0d0d0;
   --fc-non-business-color: #d6d6d64d;
   --fc-highlight-color: #d1d1d14d;
@@ -45,6 +45,30 @@ body {
 
 #app {
   height: 100vh;
+}
+
+/*
+ * Popup 
+ */
+.popup {
+  display: none;
+}
+
+.popup .popup-body {
+  position: absolute;
+  height: 2rem;
+  width: 10rem;
+  background-color: lime;
+  color: black;
+  z-index: 999999;
+}
+
+.popup-bg {
+  position: absolute;
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
 }
 
 /* 

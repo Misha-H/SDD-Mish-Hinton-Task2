@@ -8,6 +8,13 @@
   </head>
   <body>
     <div id="app">
+      <!-- Popup -->
+      <div class="popup">
+        <div class="popup-bg">
+          <div class="popup-body">Popup! Popup! Popup! Popup! Popup! Popup! Popup! Popup!</div>
+        </div>
+      </div>
+
       <!-- Modal -->
       <div class="modal" id="add-event-modal">
         <div class="modal-bg modal-exit"></div>
@@ -36,9 +43,17 @@
 
             <div class="group">
               <label for="event-date-end" class="hide">End</label>
-              <input type="datetime-local" name="event-date-end" id="event-date-end" />
+              <input
+                type="datetime-local"
+                name="event-date-end"
+                id="event-date-end"
+              />
             </div>
 
+            <div class="group">
+              <label for="event-colour" class="hide">Colour</label>
+              <input type="color" name="event-colour" id="event-colour" />
+            </div>
 
             <input type="submit" value="Submit" />
           </form>
