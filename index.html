@@ -4,17 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Calender Application</title>
   </head>
   <body>
     <div id="app">
-      <!-- Popup -->
-      <div class="popup">
-        <div class="popup-bg">
-          <div class="popup-body">Popup! Popup! Popup! Popup! Popup! Popup! Popup! Popup!</div>
-        </div>
-      </div>
-
       <!-- Modal -->
       <div class="modal" id="add-event-modal">
         <div class="modal-bg modal-exit"></div>
@@ -28,7 +21,15 @@
                 type="text"
                 name="event-title"
                 id="event-title"
-                placeholder="Enter Text Here."
+                placeholder="Enter Title Here."
+              />
+            </div>
+            <div class="group">
+              <input
+                type="text"
+                name="event-description"
+                id="event-description"
+                placeholder="Enter Short Description Here."
               />
             </div>
 

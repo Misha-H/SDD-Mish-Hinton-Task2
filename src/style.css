@@ -47,28 +47,14 @@ body {
   height: 100vh;
 }
 
-/*
- * Popup 
+/* 
+ * Tooltip
  */
-.popup {
-  display: none;
-}
-
-.popup .popup-body {
-  position: absolute;
-  height: 2rem;
-  width: 10rem;
-  background-color: lime;
-  color: black;
-  z-index: 999999;
-}
-
-.popup-bg {
-  position: absolute;
-  background-color: transparent;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
+.tippy-box {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: black;
+  color: white;
 }
 
 /* 

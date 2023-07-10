@@ -3,10 +3,14 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import invert from 'invert-color';
+import tippy, { type Instance } from 'tippy.js';
 
-import type { EventInput } from '@fullcalendar/core';
+import 'tippy.js/themes/light.css';
 
 import './style.css';
+
+import type { EventInput } from '@fullcalendar/core';
+import type { EventImpl } from '@fullcalendar/core/internal';
 
 interface WeatherDay {
   date: number;
@@ -16,13 +20,13 @@ interface WeatherDay {
 
 type Weather = Array<WeatherDay>;
 
-interface Popup {
-  $popup: {
-    container: HTMLElement;
-    body: HTMLElement;
+interface CustomEventProps extends EventImpl {
+  extendedProps: {
+    /**
+     * Event description.
+     */
+    description: string;
   };
-  show: (x: number | string, y: number | string) => void;
-  hide: () => void;
 }
 
 interface Db {
@@ -32,6 +36,8 @@ interface Db {
 let _db: Db = {
   events: [],
 };
+
+let $tooltip: Instance;
 
 const db = {
   NAME: 'db',
@@ -61,31 +67,6 @@ if (localStorage.getItem('db') === null) {
   db.read();
   console.log(_db);
 }
-
-const popup: Popup = {
-  $popup: {
-    container: document.querySelector('.popup')!,
-    body: document.querySelector('.popup .popup-body')!,
-  },
-
-  show: function (x: number | string, y: number | string) {
-    console.log('show');
-    console.log('show->this', this);
-    console.log('show->this->container', this.$popup.container);
-    this.$popup.body.style.left = `${x}px`;
-    this.$popup.body.style.top = `${y}px`;
-    this.$popup.container.addEventListener('click', this.hide);
-    this.$popup.container.style.display = 'block';
-  },
-
-  hide: function () {
-    console.log('hide');
-    console.log('hide->this', this);
-    console.log('hide->this->container', this.$popup.container);
-    this.$popup.container.removeEventListener('click', this.hide);
-    this.$popup.container.style.display = 'none';
-  },
-};
 
 const weather: Weather = [];
 
@@ -126,6 +107,7 @@ const getWeather = async (startDate: string, endDate: string) => {
     'event-date-end': HTMLInputElement;
     'event-title': HTMLInputElement;
     'event-colour': HTMLInputElement;
+    'event-description': HTMLInputElement;
   }
 
   /**
@@ -198,8 +180,6 @@ const getWeather = async (startDate: string, endDate: string) => {
      * Submit information / create event
      */
     function formSubmit(event$: SubmitEvent) {
-      console.log($form.elements['event-colour'].value);
-
       const event: EventInput = {
         id: Math.random().toString(),
         title: $form.elements['event-title'].value,
@@ -207,6 +187,9 @@ const getWeather = async (startDate: string, endDate: string) => {
         end: new Date($form.elements['event-date-end'].value).toJSON(),
         backgroundColor: $form.elements['event-colour'].value,
         textColor: invert($form.elements['event-colour'].value, true),
+        extendedProps: {
+          description: $form.elements['event-description'].value,
+        },
       };
 
       db.addEvent(event);
@@ -246,11 +229,18 @@ const getWeather = async (startDate: string, endDate: string) => {
       right: 'dayGridMonth,timeGridWeek,listWeek',
     },
     events: db.getEvents(),
-    eventClick: (eventClickInfo) => {
-      // Delete event
-      // eventClickInfo.event.remove()
-      const { clientX, clientY } = eventClickInfo.jsEvent;
-      popup.show(clientX, clientY);
+    eventMouseEnter: (eventClickInfo) => {
+      $tooltip = tippy(eventClickInfo.el, {
+        content: (eventClickInfo.event as CustomEventProps).extendedProps
+          .description,
+        placement: 'top',
+        animation: 'scale-subtle',
+        interactive: true,
+        hideOnClick: false
+      });
+    },
+    eventMouseLeave: () => {
+      $tooltip.destroy();
     },
     /**
      *
