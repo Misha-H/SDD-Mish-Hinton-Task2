@@ -3,14 +3,18 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import invert from 'invert-color';
-import tippy, { type Instance } from 'tippy.js';
+import L from 'leaflet';
+import tippy from 'tippy.js';
 
+import 'leaflet/dist/leaflet.css';
 import 'tippy.js/themes/light.css';
 
 import './style.css';
 
 import type { EventInput } from '@fullcalendar/core';
 import type { EventImpl } from '@fullcalendar/core/internal';
+import type { LeafletMouseEvent } from 'leaflet';
+import type { Instance } from 'tippy.js';
 
 interface WeatherDay {
   date: number;
@@ -50,6 +54,10 @@ const db = {
   },
   addEvent(event: EventInput): void {
     _db.events.push(event);
+    this.save();
+  },
+  removeEvent(id: string): void {
+    _db.events = _db.events.filter((event) => event.id !== id);
     this.save();
   },
   getEvents() {
@@ -108,6 +116,7 @@ const getWeather = async (startDate: string, endDate: string) => {
     'event-title': HTMLInputElement;
     'event-colour': HTMLInputElement;
     'event-description': HTMLInputElement;
+    'event-location': HTMLInputElement;
   }
 
   /**
@@ -147,6 +156,9 @@ const getWeather = async (startDate: string, endDate: string) => {
   // Change typing of form from HTMLFormElement to AddEventFormElement
   const $form = document.querySelector('form')! as AddEventFormElement;
 
+  // Get access to the map
+  let map: L.Map | null = null;
+
   // https://fullcalendar.io/docs/event-source-object
 
   function initModal(event: MouseEvent) {
@@ -156,6 +168,31 @@ const getWeather = async (startDate: string, endDate: string) => {
     const $calendar = document.getElementById('calendar')!;
     // Get access to to all elements in modal with the `modal-exit` class
     const $modalExitBtns = $modal.querySelectorAll('.modal-exit');
+
+    map = L.map('map').setView([51.505, -0.09], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(
+      map
+    );
+
+    let mapPin: L.Marker<any> | null = null;
+
+    function onMapClick(e: LeafletMouseEvent) {
+      const { lat, lng } = e.latlng;
+      console.log('Latitude', lat);
+      console.log('Longitude', lng);
+
+      // Remove pin if on exists
+      if (mapPin) {
+        mapPin.remove();
+      }
+
+      $form.elements['event-location'].value = `lat=${lat}&lon=${lng}`;
+
+      // Add a pin to the map where user clicks
+      mapPin = L.marker([lat, lng]).addTo(map!);
+    }
+
+    map.on('click', onMapClick);
 
     // Prevent browser from performing default actions (like refreshing page)
     event.preventDefault();
@@ -175,7 +212,9 @@ const getWeather = async (startDate: string, endDate: string) => {
       $modal.classList.remove('active');
       $calendar.classList.remove('hidden');
       $form.removeEventListener('submit', formSubmit);
+      map?.remove();
     }
+
     /**
      * Submit information / create event
      */
@@ -230,17 +269,42 @@ const getWeather = async (startDate: string, endDate: string) => {
     },
     events: db.getEvents(),
     eventMouseEnter: (eventClickInfo) => {
+      function removeEvent() {
+        console.log('removeEvent');
+        (eventClickInfo.event as CustomEventProps).remove();
+        db.removeEvent(eventClickInfo.event.id);
+      }
+
+      const { description } = (eventClickInfo.event as CustomEventProps)
+        .extendedProps;
+
       $tooltip = tippy(eventClickInfo.el, {
-        content: (eventClickInfo.event as CustomEventProps).extendedProps
-          .description,
+        content: `<div class="tooltip">
+                    ${description && `<span>${description}</span>`}
+                    
+                    <button type="button">
+                      &#x2716;
+                    </button>
+                  </div>`,
         placement: 'top',
         animation: 'scale-subtle',
         interactive: true,
-        hideOnClick: false
+        hideOnClick: false,
+        allowHTML: true,
+        onMount(instance) {
+          instance.popper
+            .querySelector('button')
+            ?.addEventListener('click', removeEvent);
+        },
+        onDestroy(instance) {
+          instance.popper
+            .querySelector('button')
+            ?.addEventListener('click', removeEvent);
+        },
       });
     },
     eventMouseLeave: () => {
-      $tooltip.destroy();
+      setTimeout(() => $tooltip.destroy(), 20000);
     },
     /**
      *

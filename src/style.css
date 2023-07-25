@@ -50,11 +50,20 @@ body {
 /* 
  * Tooltip
  */
-.tippy-box {
-  padding: 0.5rem;
+.tippy-box .tooltip > span,
+.tippy-box .tooltip > button {
+  padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  background-color: black;
+  background-color: #1d1d1d;
   color: white;
+  margin: 0 0.25rem;
+  box-shadow: 0px 6px 4px -4px black;
+}
+
+.tippy-box .tooltip > button {
+  appearance: none;
+  border-width: 0;
+  cursor: pointer;
 }
 
 /* 
@@ -172,6 +181,11 @@ body {
   border: 0.1rem solid #b5b5b5;
 }
 
+.modal-container form .group:last-child {
+  width: 600px;
+  height: 400px;
+}
+
 .modal-container form input[type='submit'] {
   background-color: transparent;
   color: #b5b5b5;
@@ -195,4 +209,11 @@ body {
   border: 0px;
   font-weight: bold;
   cursor: pointer;
+}
+
+/*
+ * Map
+ */
+#map {
+  height: 150px;
 }
