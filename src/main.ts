@@ -169,7 +169,7 @@ const getWeather = async (startDate: string, endDate: string) => {
     // Get access to to all elements in modal with the `modal-exit` class
     const $modalExitBtns = $modal.querySelectorAll('.modal-exit');
 
-    map = L.map('map').setView([51.505, -0.09], 13);
+    map = L.map('map').setView([0, 0], 0);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(
       map
     );
