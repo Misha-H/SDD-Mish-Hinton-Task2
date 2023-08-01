@@ -30,6 +30,11 @@ interface CustomEventProps extends EventImpl {
      * Event description.
      */
     description: string;
+
+    /**
+     * Event location.
+     */
+    location: string;
   };
 }
 
@@ -176,17 +181,17 @@ const getWeather = async (startDate: string, endDate: string) => {
 
     let mapPin: L.Marker<any> | null = null;
 
-    function onMapClick(e: LeafletMouseEvent) {
+    async function onMapClick(e: LeafletMouseEvent) {
       const { lat, lng } = e.latlng;
-      console.log('Latitude', lat);
-      console.log('Longitude', lng);
 
       // Remove pin if on exists
       if (mapPin) {
         mapPin.remove();
       }
 
-      $form.elements['event-location'].value = `lat=${lat}&lon=${lng}`;
+      $form.elements[
+        'event-location'
+      ].value = `https://www.google.com/maps?q=${lat},${lng}`;
 
       // Add a pin to the map where user clicks
       mapPin = L.marker([lat, lng]).addTo(map!);
@@ -228,6 +233,7 @@ const getWeather = async (startDate: string, endDate: string) => {
         textColor: invert($form.elements['event-colour'].value, true),
         extendedProps: {
           description: $form.elements['event-description'].value,
+          location: $form.elements['event-location'].value,
         },
       };
 
@@ -275,16 +281,17 @@ const getWeather = async (startDate: string, endDate: string) => {
         db.removeEvent(eventClickInfo.event.id);
       }
 
-      const { description } = (eventClickInfo.event as CustomEventProps)
+      const { description, location } = (eventClickInfo.event as CustomEventProps)
         .extendedProps;
 
       $tooltip = tippy(eventClickInfo.el, {
         content: `<div class="tooltip">
-                    ${description && `<span>${description}</span>`}
-                    
-                    <button type="button">
-                      &#x2716;
-                    </button>
+                    <div class="content">
+                      ${description && `<strong>${description}</strong>`}
+                      ${location && `<a href="${location}" target="_blank">Location</a>`}
+                    </div>
+              
+                    <button type="button">&#x2716;</button>
                   </div>`,
         placement: 'top',
         animation: 'scale-subtle',
