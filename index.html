@@ -35,9 +35,36 @@
             <input type="submit" value="Login" />
           </form>
         </div>
+
+        <div class="signup">
+          <h1>Sign Up:</h1>
+          <form>
+            <div class="group">
+              <label for="signup-username" class="hide">Username</label>
+              <input
+                type="text"
+                name="signup-username"
+                id="signup-username"
+                placeholder="Username"
+              />
+            </div>
+
+            <div class="group">
+              <label for="signup-password" class="hide">Password</label>
+              <input
+                type="text"
+                name="signup-password"
+                id="signup-password"
+                placeholder="Password"
+              />
+            </div>
+
+            <input type="submit" value="Sign Up" />
+          </form>
+        </div>
       </div>
     </div>
 
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/auth.ts"></script>
   </body>
 </html>

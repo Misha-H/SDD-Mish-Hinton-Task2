@@ -38,48 +38,74 @@ interface CustomEventProps extends EventImpl {
   };
 }
 
-interface Db {
+interface EventsDb {
   events: Array<EventInput>;
 }
 
-let _db: Db = {
+interface User {
+  id: number;
+  username: string;
+  password: string;
+}
+
+/**
+ * User Dictionary
+ */
+
+// // Find a user by id
+// const userFromDict = usersDict[userToFind];
+
+// // Create a new user
+// userFromDict[user.id] = user;
+
+// // Update a user by id
+// usersDict[userToFind].username = 'changed the username';
+
+// // Delete a user by id
+// usersDict[userToFind] = undefined;
+
+
+
+let _usersDb: UsersDb = {
+  0: {
+    id: 0,
+    username: 'string',
+    password: 'string',
+  },
+};
+
+let _eventsDb: EventsDb = {
   events: [],
 };
 
 let $tooltip: Instance;
 
-const db = {
-  NAME: 'db',
+
+
+
+
+const eventsDb = {
+  NAME: 'events',
   save(): void {
-    localStorage.setItem(this.NAME, JSON.stringify(_db));
+    localStorage.setItem(this.NAME, JSON.stringify(_eventsDb));
     console.log('[DB]: SAVE');
   },
   read(): void {
-    _db = JSON.parse(localStorage.getItem(this.NAME)!);
+    _eventsDb = JSON.parse(localStorage.getItem(this.NAME)!);
   },
   addEvent(event: EventInput): void {
-    _db.events.push(event);
+    _eventsDb.events.push(event);
     this.save();
   },
   removeEvent(id: string): void {
-    _db.events = _db.events.filter((event) => event.id !== id);
+    _eventsDb.events = _eventsDb.events.filter((event) => event.id !== id);
     this.save();
   },
   getEvents() {
-    return _db.events;
+    return _eventsDb.events;
   },
 };
 
-// Init database from local storage
-if (localStorage.getItem('db') === null) {
-  console.log('[DB]: CREATE');
-  // Save default value to database/local storage
-  db.save();
-} else {
-  console.log('[DB]: READ');
-  db.read();
-  console.log(_db);
-}
 
 const weather: Weather = [];
 
@@ -237,7 +263,7 @@ const getWeather = async (startDate: string, endDate: string) => {
         },
       };
 
-      db.addEvent(event);
+      eventsDb.addEvent(event);
 
       calendar.addEvent(event);
 
@@ -273,22 +299,26 @@ const getWeather = async (startDate: string, endDate: string) => {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,listWeek',
     },
-    events: db.getEvents(),
+    events: eventsDb.getEvents(),
     eventMouseEnter: (eventClickInfo) => {
       function removeEvent() {
         console.log('removeEvent');
         (eventClickInfo.event as CustomEventProps).remove();
-        db.removeEvent(eventClickInfo.event.id);
+        eventsDb.removeEvent(eventClickInfo.event.id);
       }
 
-      const { description, location } = (eventClickInfo.event as CustomEventProps)
-        .extendedProps;
+      const { description, location } = (
+        eventClickInfo.event as CustomEventProps
+      ).extendedProps;
 
       $tooltip = tippy(eventClickInfo.el, {
         content: `<div class="tooltip">
                     <div class="content">
                       ${description && `<strong>${description}</strong>`}
-                      ${location && `<a href="${location}" target="_blank">Location</a>`}
+                      ${
+                        location &&
+                        `<a href="${location}" target="_blank">Location</a>`
+                      }
                     </div>
               
                     <button type="button">&#x2716;</button>
@@ -378,3 +408,13 @@ const getWeather = async (startDate: string, endDate: string) => {
 
   console.log(getISO(calendar.view.activeStart));
 })();
+
+
+
+function goToCalanderPage() {
+}
+
+
+function goToLoginPage() {
+
+}
