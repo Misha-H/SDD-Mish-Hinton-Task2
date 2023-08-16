@@ -18,18 +18,24 @@ interface UsersDictionary {
 }
 
 interface UsersDb extends Db<UsersDictionary> {
+  activeUserKey: string;
+  activeUser: null | User;
   save(): void;
   read(): void;
   init(): void;
   addUser(user: Omit<User, 'id'>): void;
-  removeUser(id: User['id']): void;
-  getUser(id: User['id']): User;
   login(username: User['username'], password: User['password']): User | null;
+  logout(): void;
+  removeUser(id: User['id']): void;
+  getActiveUser(): User | null;
+  setActiveUser(id?: User['id']): void;
 }
 
 export const usersDb: UsersDb = {
   name: 'users',
+  activeUserKey: 'users__activeUser',
   db: {},
+  activeUser: null,
   save() {
     localStorage.setItem(this.name, JSON.stringify(this.db));
     console.log('[DB]: SAVE');
@@ -59,8 +65,14 @@ export const usersDb: UsersDb = {
     delete this.db[id];
     this.save();
   },
-  getUser(id) {
-    return this.db[id];
+  setActiveUser(id) {
+    // If no user id is passed, assume logout and set active user to `null`
+    this.activeUser = id ? this.db[id] : null;
+    localStorage.setItem(this.activeUserKey, JSON.stringify(this.activeUser));
+  },
+  getActiveUser() {
+    this.activeUser = JSON.parse(localStorage.getItem(this.activeUserKey)!);
+    return this.activeUser;
   },
   login(username, password) {
     // Get all the ids (keys)
@@ -73,10 +85,18 @@ export const usersDb: UsersDb = {
 
       // If the entered username and password match a user
       if (user.username === username && user.password === password) {
-        return user;
+        // Set the active user (login)
+        this.setActiveUser(id);
+        return this.getActiveUser();
       }
     }
 
     return null;
+  },
+  logout() {
+    // Log the active user out
+    this.setActiveUser();
+    window.location.href = '/';
+    return true;
   },
 };

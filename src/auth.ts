@@ -33,15 +33,21 @@ $formLogin.addEventListener('submit', (event: SubmitEvent) => {
   event.preventDefault();
   console.log($formLogin.elements);
 
+  // Set active user if credentials match
   const user = usersDb.login(
     $formLogin.elements['login-username'].value,
     $formLogin.elements['login-password'].value
   );
 
+  // User exists in database
   if (user) {
-    // User does exist in database
-    // window.location.href = `/calendar`
+    console.log('User exists');
+    // Naviagte to calendar page
+    window.location.href = '/calendar.html';
   } else {
     // User does not exist in database
+    const h3 = document.createElement('h3');
+    h3.textContent = 'User does not exist';
+    document.body.appendChild(h3);
   }
 });
